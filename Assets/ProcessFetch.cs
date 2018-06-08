@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 using System;
 using System.Diagnostics;
@@ -13,17 +14,30 @@ public class ProcessFetch : MonoBehaviour {
 	const int PROCESS_WM_READ = 0x0010;
 	IntPtr processHandle;
 	byte[] buffer;
+	Int32 memoryAddress;
+	InputField inputField;
+	Text igtText;
 
 
 	void Awake () {
 		Process process = Process.GetProcessesByName("sh2pc")[0]; 
 		processHandle = OpenProcess(PROCESS_WM_READ, false, process.Id);
+		inputField = GameObject.Find ("InputField").GetComponent<InputField>();
+		igtText = GameObject.Find ("IGT").GetComponent<Text> ();
 	}
 
 	void Update() {
-		buffer = ReadMemory (0x1DBEB94, sizeof(float), (int)processHandle);
-		float myFloat = System.BitConverter.ToSingle(buffer, 0);
-		UnityEngine.Debug.Log (myFloat);
+		
+	}
+
+	public void ScanProcessInMemory() {
+		memoryAddress = Convert.ToInt32 (inputField.text, 16);
+		if (memoryAddress != null) {
+			buffer = ReadMemory (memoryAddress, sizeof(float), (int)processHandle);
+			float myFloat = System.BitConverter.ToSingle (buffer, 0);
+			UnityEngine.Debug.Log (myFloat);
+			igtText.text = "IGT: " + myFloat;
+		}
 	}
 
 	// Other methods
